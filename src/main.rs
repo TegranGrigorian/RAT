@@ -1,7 +1,8 @@
-use RAT::utils::tar_utils::{tar_compress_managment::TarCompressManager, tar_uncompress_managment::TarUncompressManager};
+use rat::utils::tar_utils::{tar_compress_managment::TarCompressManager, tar_uncompress_managment::TarUncompressManager};
+use rat::utils::file_util::FileUtil;
 use std::env::args;
 use std::path::Path;
-
+#[allow(non_snake_case)]
 fn main() {
     // let mut args = args();
     // let input_path = args.nth(1).expect("Input path not provided");
@@ -53,6 +54,15 @@ fn main() {
     if input_path.ends_with(".tar.gz") {
         let manager = TarUncompressManager {};
         let _tar = manager.decompress(input_path.as_str(), "output_folder");
+        if delete_flag {
+            //delete the input file
+            let _delete = FileUtil::delete_file(&input_path);
+            if _delete.is_err() {
+                println!("Error deleting the input file: {}", _delete.unwrap_err());
+            } else {
+                println!("Input file deleted successfully.");
+            }
+        }
         match _tar {
             Ok(_) => println!("Decompression successful!"),
             Err(e) => println!("Error during decompression: {}", e)
