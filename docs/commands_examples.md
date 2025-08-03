@@ -8,7 +8,7 @@ target/debug/RAT src/test_folder
 make tar.gz file and rename output
 
 ```
-target/debug/RAT src/test_folder output.tar.gz
+target/debug/RAT src/test_folder output
 ```
 
 
