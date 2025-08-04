@@ -1,2 +1,5 @@
 /target
 /rat
+install/packages/*
+# Dont wnat the rat binary in the repo
+install/linux/rat/rat

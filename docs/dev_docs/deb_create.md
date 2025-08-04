@@ -22,7 +22,7 @@ Version: 0.1.0
 Section: utils
 Priority: optional
 Architecture: amd64
-Maintainer: Your Name <tegrgrigoralt@gmail.com>
+Maintainer: Tegran Grigorian <tegrgrigoralt@gmail.com>
 Description: A easy to use abstraction of the TAR package format. This package provides a simple interface to create and extract TAR archives. It is designed to be easy to use and integrate into other applications.
 ```
 - **Package**: Name of the package.
@@ -54,5 +54,15 @@ rat --help
 
 ## Notes
 - Ensure the `control` file ends with a newline.
-- Use `amd64` for the `Architecture` field instead of `x86_64`.
 - If you encounter issues, check the `dpkg-deb` error messages for guidance.
+
+## file strucute of deb
+
+```
+rat/
+├── DEBIAN
+│   └── control
+└── usr
+    └── bin
+        └── rat
+```
