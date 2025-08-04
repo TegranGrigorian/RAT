@@ -72,7 +72,7 @@ rat
    ```
 2. **(Optional) Use the provided script for packaging and installation:**
    ```sh
-   ./rerun.sh
+   ./deb_setup.sh
    ```
 
 ## License
