@@ -1,3 +1,4 @@
+use rat::test;
 use rat::utils::tar_utils::{tar_compress_managment::TarCompressManager, tar_uncompress_managment::TarUncompressManager};
 use rat::utils::file_util::FileUtil;
 use std::env::args;
@@ -11,6 +12,7 @@ fn main() {
     //     Some(path) => format!("{}.tar.gz", path),
     //     None => format!("{}.tar.gz", input_path),
     // };    
+    // test::test_xz_compress("/home/tegran-grigorian/Documents/Projects/RAT/src/test_folder");
     let args: Vec<String> = args().skip(1).collect();    
     let mut input_path = None;
     let mut output_path: Option<String> = None;
