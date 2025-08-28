@@ -14,3 +14,12 @@ pub fn decompress_folder(input_path: &str, output_path: &str) -> std::io::Result
     manager.decompress(input_path, output_path)
 }
 
+pub fn compress_folder_xz(input_path: &str, output_path: &str) -> std::io::Result<()> {
+    let manager = TarCompressManager {};
+    manager.compress(input_path, &mut output_path.to_string())
+}
+
+pub fn decompress_folder_xz(input_path: &str, output_path: &str) -> std::io::Result<()> {
+    let manager = crate::utils::tar_utils::tar_uncompress_managment::TarUncompressManager {};
+    manager.decompress(input_path, output_path)
+}

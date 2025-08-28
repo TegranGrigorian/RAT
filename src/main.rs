@@ -22,10 +22,13 @@ fn main() {
     let mut input_path = None;
     let mut output_path: Option<String> = None;
     let mut delete_flag = false;
+    let mut xz_flag = false;
 
     for arg in &args {
         if arg == "-d" {
             delete_flag = true;
+        } else if arg == "-x" || arg == "--xz" {
+            xz_flag = true;
         } else if arg == "--help" || arg == "-h" {
             println!("Rat - Rust Archive Tool or tar in reverse");
             println!("A simple tool to compress and decompress files and folders using tar.gz format.");
@@ -35,27 +38,27 @@ fn main() {
             println!("  [output_path]   The path to the output file. If not provided, it will be set to <input_path>.tar.gz");
             println!("output path not needed for decompression, it will be set to output_folder");
             println!("Options:");
-            println!("  -d, --delete    Delete the input file after compression/decompression");
-            println!("  -h, --help      Show this help message");
+            println!("  -x, --xz          Use xz compression");
+            println!("  -d, --delete      Delete the input file after compression/decompression");
+            println!("  -h, --help        Show this help message");
             println!("Examples:");
             println!("  rat input_folder");
             println!("  rat input_folder output_file.tar.gz");
             println!("  rat -d input_folder output_file.tar.gz");
             println!("  rat -d input_file.tar.gz");
             return;
+        } else if arg.starts_with('-') {
+            // skip any other flags
+            continue;
         } else if arg.ends_with(".tar.gz") {
-            // If the argument ends with .tar.gz, assign it to input_path if not already set
             if input_path.is_none() {
                 input_path = Some(arg.clone());
             } else if output_path.is_none() {
-                // Otherwise, assign it to output_path if input_path is already set
                 output_path = Some(arg.clone());
             }
         } else if input_path.is_none() {
-            // Assign the first non-.tar.gz argument to input_path
             input_path = Some(arg.clone());
         } else if output_path.is_none() {
-            // Assign the next argument to output_path, appending .tar.gz if necessary
             output_path = Some(format!("{}.tar.gz", arg));
         }
     }
@@ -82,7 +85,72 @@ fn main() {
     } else {
         "output_folder".to_string()
     };
-
+    if input_path.ends_with(".tar.xz") {
+        // Decompress .tar.xz using XzUncompressManagment
+        use rat::utils::tar_utils::xz_uncompress_managment::XzUncompressManagment;
+        let output_folder_name = Path::new(&input_path)
+            .file_stem()
+            .and_then(|n| n.to_str())
+            .unwrap_or("output_folder")
+            .trim_end_matches(".tar")
+            .to_string();
+        println!("Decompressing {} to {}", input_path, output_folder_name);
+        let _xz = XzUncompressManagment::uncompress_file(input_path.as_str(), &output_folder_name);
+        if let Ok(_) = _xz {
+            let extracted_path = Path::new(&output_folder_name);
+            if extracted_path.exists() {
+                println!("Extracted path exists: {:?}", extracted_path);
+                let entries: Vec<_> = extracted_path.read_dir().expect("Failed to read directory").collect();
+                println!("Entries found: {}", entries.len());
+                if entries.len() == 1 {
+                    if let Ok(entry) = &entries[0] {
+                        let file_name = entry.file_name();
+                        println!("Processing top-level entry: {:?}", file_name);
+                        if file_name.to_str() == Some(output_folder_name.as_str()) {
+                            let inner_path = entry.path();
+                            println!("Found inner folder: {:?}", inner_path);
+                            // Move folder deletion logic before processing inner entries
+                            // Process inner entries before removing the folder
+                            // First, recursively move contents of directories to the parent directory
+                            fn move_contents_recursively(src: &std::path::Path, dest: &std::path::Path) -> Vec<(std::path::PathBuf, std::path::PathBuf)> {
+                                let mut files_to_move_later = Vec::new();
+                                for entry in src.read_dir().expect("Failed to read directory") {
+                                    if let Ok(entry) = entry {
+                                        let file_name = entry.file_name();
+                                        let new_path = dest.join(&file_name);
+                                        if entry.file_type().expect("Failed to get file type").is_dir() {
+                                            println!("Recursively moving directory {:?} to {:?}", entry.path(), new_path);
+                                            std::fs::create_dir_all(&new_path).expect("Failed to create directory");
+                                            let nested_delayed = move_contents_recursively(&entry.path(), &new_path);
+                                            files_to_move_later.extend(nested_delayed);
+                                            std::fs::remove_dir(entry.path()).expect("Failed to remove directory");
+                                        } else {
+                                            // Check if this file would conflict with the source directory name
+                                        }
+                                    }
+                                }
+                                files_to_move_later
+                            }
+                        }
+                    }
+                }
+            }
+            if delete_flag {
+                println!("Deleting input file: {}", input_path);
+                let _delete = rat::utils::file_util::FileUtil::delete_file(&input_path);
+                if _delete.is_err() {
+                    println!("Error deleting the input file: {}", _delete.unwrap_err());
+                } else {
+                    println!("Input file deleted successfully.");
+                }
+            }
+            match _xz {
+                Ok(_) => println!("Decompression successful!"),
+                Err(e) => println!("Error during decompression: {}", e)
+            }
+        }
+        return;
+    }
     if input_path.ends_with(".tar.gz") {
         let manager = TarUncompressManager {};
         println!("Decompressing {} to {}", input_path, output_folder_name);
@@ -191,6 +259,30 @@ fn main() {
                 Ok(_) => println!("Decompression successful!"),
                 Err(e) => println!("Error during decompression: {}", e)
             }
+        }
+    } else if xz_flag {
+        // XZ compression workflow
+        use rat::utils::tar_utils::xz_compress_managment::XzCompressManagment;
+        let mut out_path = output_path;
+        if !out_path.ends_with(".tar.xz") {
+            out_path = format!("{}.tar.xz", out_path.trim_end_matches(".tar.gz").trim_end_matches(".gz"));
+        }
+        println!("Compressing {} to {}", input_path, out_path);
+        let res = XzCompressManagment::compress_file(input_path.as_str(), &out_path, 6);
+        match res {
+            Ok(_) => {
+                println!("Compression successful!");
+                if delete_flag {
+                    println!("Deleting input file: {}", input_path);
+                    let _delete = FileUtil::delete_file(&input_path);
+                    if _delete.is_err() {
+                        println!("Error deleting the input file: {}", _delete.unwrap_err());
+                    } else {
+                        println!("Input file deleted successfully.");
+                    }
+                }
+            },
+            Err(e) => println!("Error during compression: {}", e)
         }
     } else {
         let manager = TarCompressManager {};
