@@ -23,8 +23,10 @@ Options:
   -h, --help      Show this help message
 Examples:
   rat input_folder
-  rat input_folder output_file.tar.gz
-  rat -d input_folder output_file.tar.gz
+  rat -x input_folder
+  rat output_file.tar.gz
+  rat output_file.tar.xz
+  rat -d output_file.tar.gz
   rat -d input_file.tar.gz
 ```
 
