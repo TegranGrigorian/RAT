@@ -1,10 +1,18 @@
-!#/bin/bash
+#!/bin/bash
 
-# this script test the xz normal gz compression
+# this script tests the xz and normal gz compression
 
-target/debug/rat -x src/test_folder
+BIN="target/debug/rat"
+if [ "$1" == "-d" ]; then
+    BIN="rat"
+    echo "[INFO] Using Debian package binary: $BIN"
+else
+    echo "[INFO] Using debug binary: $BIN"
+fi
 
-#check if this file exists, test_folder.tar.xz
+$BIN -x src/test_folder
+
+# check if this file exists, test_folder.tar.xz
 if [ -f "test_folder.tar.xz" ]; then
     echo "File test_folder.tar.xz exists."
 else
@@ -12,7 +20,7 @@ else
     exit 1
 fi
 
-target/debug/rat test_folder.tar.xz #now try and uncomrpess it
+$BIN test_folder.tar.xz # now try and uncompress it
 
 if [ -d "test_folder" ]; then
     echo "Directory test_folder exists."
@@ -23,9 +31,9 @@ fi
 
 # --- This is for gz now ---
 
-target/debug/rat src/test_folder
+$BIN src/test_folder
 
-#check if this file exists, test_folder.tar.gz
+# check if this file exists, test_folder.tar.gz
 if [ -f "test_folder.tar.gz" ]; then
     echo "File test_folder.tar.gz exists."
 else
@@ -33,7 +41,7 @@ else
     exit 1
 fi
 
-target/debug/rat test_folder.tar.gz #now try and uncomrpess it
+$BIN test_folder.tar.gz # now try and uncompress it
 
 if [ -d "test_folder" ]; then
     echo "Directory test_folder exists."
