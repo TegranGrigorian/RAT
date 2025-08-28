@@ -12,8 +12,13 @@ fn main() {
     //     Some(path) => format!("{}.tar.gz", path),
     //     None => format!("{}.tar.gz", input_path),
     // };    
+    
+    //NOTE: Test Statments
     // test::test_xz_compress("/home/tegran-grigorian/Documents/Projects/RAT/src/test_folder");
-    let args: Vec<String> = args().skip(1).collect();    
+    // test::test_xz_uncompress("/home/tegran-grigorian/Documents/Projects/RAT/test_folder.xz"); //this doenst exist yet :)
+    
+    // Main workflow
+    let args: Vec<String> = args().skip(1).collect();
     let mut input_path = None;
     let mut output_path: Option<String> = None;
     let mut delete_flag = false;
@@ -201,4 +206,5 @@ fn main() {
     //     Ok(_) => println!("Decompression successful!"),
     //     Err(e) => println!("Error during decompression: {}", e)
     // }
+
 }
