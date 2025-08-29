@@ -1,4 +1,4 @@
-pub mod tar_compress_managment;
-pub mod tar_uncompress_managment;
-pub mod xz_compress_managment;
-pub mod xz_uncompress_managment;
+// pub mod tar_gz_compress_managment;
+pub mod tar_gz;
+pub mod tar;
+pub mod tar_xz;

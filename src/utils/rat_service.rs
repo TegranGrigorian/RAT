@@ -1,8 +1,10 @@
+//holy imports
 use std::path::Path;
 use crate::utils::file_util::FileUtil;
-use crate::utils::tar_utils::tar_uncompress_managment::TarUncompressManager;
-use crate::utils::tar_utils::xz_compress_managment::XzCompressManagment;
-use crate::utils::tar_utils::xz_uncompress_managment::XzUncompressManagment;
+use crate::utils::tar_utils::tar_gz::gz_uncompress_managment::TarUncompressManager;
+use crate::utils::tar_utils::tar_xz::xz_compress_managment::XzCompressManagment;
+use crate::utils::tar_utils::tar_xz::xz_uncompress_managment::XzUncompressManagment;
+use crate::utils::tar_utils::tar_gz::gz_compress_managment::TarCompressManager;
 
 fn workflow_manager(output_folder_name: &str) {
     let extracted_path = Path::new(output_folder_name);
@@ -182,10 +184,9 @@ pub fn compress_xz(input_path: &str, output_path: &str, delete_flag: &bool) {
         Err(e) => println!("Error during compression: {}", e)
     }
 }
-use crate::utils::tar_utils::tar_compress_managment::TarCompressManager;
 
 pub fn delete_file(path: &str) -> std::io::Result<()> { //helper for a delete flag in the workflow
-    crate::utils::file_util::FileUtil::delete_file(path)
+    crate::utils::file_util::FileUtil::delete_file(path) // a little gross but meh
 }
 
 pub fn compress_folder(input_path: &str, output_path: &str) -> std::io::Result<()> {
@@ -194,7 +195,8 @@ pub fn compress_folder(input_path: &str, output_path: &str) -> std::io::Result<(
 }
 
 pub fn decompress_folder(input_path: &str, output_path: &str) -> std::io::Result<()> {
-    let manager = crate::utils::tar_utils::tar_uncompress_managment::TarUncompressManager {};
+    let manager = TarUncompressManager {};
+    // let manager = crate::utils::tar_utils::tar_gz_uncompress_managment::TarUncompressManager {};
     manager.decompress(input_path, output_path)
 }
 
@@ -204,6 +206,6 @@ pub fn compress_folder_xz(input_path: &str, output_path: &str) -> std::io::Resul
 }
 
 pub fn decompress_folder_xz(input_path: &str, output_path: &str) -> std::io::Result<()> {
-    let manager = crate::utils::tar_utils::tar_uncompress_managment::TarUncompressManager {};
+    let manager = TarUncompressManager {};
     manager.decompress(input_path, output_path)
 }
